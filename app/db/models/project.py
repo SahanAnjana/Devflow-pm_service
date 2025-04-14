@@ -21,7 +21,10 @@ class Project(Base):
     # Relationships
     members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
     settings = relationship("ProjectSettings", back_populates="project", uselist=False, cascade="all, delete-orphan")
-
+    resources = relationship("Resource", back_populates="project", cascade="all, delete-orphan") 
+    tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
+    board_columns = relationship("BoardColumn", back_populates="project", cascade="all, delete-orphan")
+        
 class ProjectSettings(Base):
     __tablename__ = "project_settings"
     

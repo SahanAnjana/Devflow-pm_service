@@ -36,7 +36,8 @@ class Task(Base):
     # Relationships
     project = relationship("Project", back_populates="tasks")
     column = relationship("BoardColumn", back_populates="tasks")
-    
+    resource_assignments = relationship("ResourceAssignment", back_populates="task", cascade="all, delete-orphan")
+
     # Many-to-many relationship for task dependencies
     dependencies = relationship(
         "Task",
