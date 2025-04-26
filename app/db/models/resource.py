@@ -20,12 +20,12 @@ class Resource(Base):
     user_id = Column(String(36), nullable=True, index=True)
     cost_rate = Column(Float, nullable=True)  # cost per hour or unit
     availability = Column(Float, default=100.0)  # percentage of availability (e.g. 100% = full-time)
-    skills = Column(Text, nullable=True)  # store as JSON string
+    skills = Column(JSON, nullable=True)  # store as JSON string
     description = Column(Text, nullable=True)
     
     # Additional fields for person type resources
     email = Column(String(255), nullable=True)
-    phone = Column(String(50), nullable=True)
+    phone = Column(String(20), nullable=True)
     
     # Additional properties as JSON for flexible extension
     properties = Column(JSON, nullable=True)  # MySQL 5.7+ supports JSON

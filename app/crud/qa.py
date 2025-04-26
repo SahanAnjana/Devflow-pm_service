@@ -2,10 +2,11 @@
 from typing import List, Optional, Dict, Any, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
-from datetime import datetime, timedelta
-from app.db.models.qa import Issue, TestCase, TestRun, TestRunResult
-from app.schemas.issue_test import (
+from datetime import datetime, timedelta, timezone
+from app.db.models.qa import Issue, IssueComment, IssueAttachment, TestCase, TestRun, TestRunResult
+from app.schemas.qa import (
     IssueCreate, IssueUpdate,
+    IssueCommentCreate, IssueAttachmentCreate,
     TestCaseCreate, TestCaseUpdate,
     TestRunCreate, TestRunUpdate,
     TestRunResultCreate, TestRunResultUpdate
@@ -46,6 +47,7 @@ def get_issues_by_project(
 
 def create_issue(db: Session, issue: IssueCreate) -> Issue:
     """Create a new issue"""
+    now = datetime.now(timezone.utc)
     db_issue = Issue(
         id=str(uuid.uuid4()),
         title=issue.title,
@@ -56,8 +58,8 @@ def create_issue(db: Session, issue: IssueCreate) -> Issue:
         issue_type=issue.issue_type,
         assignee_id=issue.assignee_id,
         reporter_id=issue.reporter_id,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        created_at=now,
+        updated_at=now
     )
     db.add(db_issue)
     db.commit()
@@ -75,7 +77,7 @@ def update_issue(db: Session, issue_id: str, issue_data: IssueUpdate) -> Optiona
     for key, value in update_data.items():
         setattr(db_issue, key, value)
     
-    db_issue.updated_at = datetime.utcnow()
+    db_issue.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_issue)
     return db_issue
@@ -97,7 +99,7 @@ def update_issue_status(db: Session, issue_id: str, status: str) -> Optional[Iss
         return None
     
     db_issue.status = status
-    db_issue.updated_at = datetime.utcnow()
+    db_issue.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_issue)
     return db_issue
@@ -109,7 +111,7 @@ def update_issue_assignee(db: Session, issue_id: str, assignee_id: str) -> Optio
         return None
     
     db_issue.assignee_id = assignee_id
-    db_issue.updated_at = datetime.utcnow()
+    db_issue.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_issue)
     return db_issue
@@ -216,6 +218,7 @@ def get_test_cases_by_project(
 
 def create_test_case(db: Session, test_case: TestCaseCreate) -> TestCase:
     """Create a new test case"""
+    now = datetime.now(timezone.utc)
     db_test_case = TestCase(
         id=str(uuid.uuid4()),
         title=test_case.title,
@@ -229,8 +232,8 @@ def create_test_case(db: Session, test_case: TestCaseCreate) -> TestCase:
         prerequisites=test_case.prerequisites,
         created_by=test_case.created_by,
         updated_by=test_case.created_by,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        created_at=now,
+        updated_at=now
     )
     db.add(db_test_case)
     db.commit()
@@ -248,7 +251,7 @@ def update_test_case(db: Session, test_case_id: str, test_case_data: TestCaseUpd
     for key, value in update_data.items():
         setattr(db_test_case, key, value)
     
-    db_test_case.updated_at = datetime.utcnow()
+    db_test_case.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_test_case)
     return db_test_case
@@ -288,6 +291,7 @@ def get_test_runs_by_project(
 
 def create_test_run(db: Session, test_run: TestRunCreate) -> TestRun:
     """Create a new test run"""
+    now = datetime.now(timezone.utc)
     db_test_run = TestRun(
         id=str(uuid.uuid4()),
         name=test_run.name,
@@ -298,8 +302,8 @@ def create_test_run(db: Session, test_run: TestRunCreate) -> TestRun:
         test_cases=test_run.test_cases,
         executor_id=test_run.executor_id,
         created_by=test_run.created_by,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=now,
+        updated_at=now,
         start_date=test_run.start_date,
         end_date=test_run.end_date
     )
@@ -319,7 +323,7 @@ def update_test_run(db: Session, test_run_id: str, test_run_data: TestRunUpdate)
     for key, value in update_data.items():
         setattr(db_test_run, key, value)
     
-    db_test_run.updated_at = datetime.utcnow()
+    db_test_run.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_test_run)
     return db_test_run
@@ -348,7 +352,7 @@ def create_test_run_result(db: Session, result: TestRunResultCreate) -> TestRunR
         notes=result.notes,
         execution_time=result.execution_time,
         executor_id=result.executor_id,
-        executed_at=datetime.utcnow(),
+        executed_at=datetime.now(timezone.utc),
         defects=result.defects
     )
     db.add(db_result)
@@ -432,3 +436,46 @@ def get_test_metrics(
         "completed_test_runs": len([tr for tr in test_runs if tr.status == "COMPLETED"]),
         "in_progress_test_runs": len([tr for tr in test_runs if tr.status == "IN_PROGRESS"])
     }
+
+# Issue Comment CRUD Operations
+def create_issue_comment(db: Session, comment: IssueCommentCreate) -> IssueComment:
+    """Create a new issue comment"""
+    now = datetime.now(timezone.utc)
+    db_comment = IssueComment(
+        id=str(uuid.uuid4()),
+        issue_id=comment.issue_id,
+        content=comment.content,
+        author_id=comment.author_id,
+        created_at=now,
+        updated_at=now
+    )
+    db.add(db_comment)
+    db.commit()
+    db.refresh(db_comment)
+    return db_comment
+
+def get_issue_comments(db: Session, issue_id: str) -> List[IssueComment]:
+    """Get all comments for an issue"""
+    return db.query(IssueComment).filter(IssueComment.issue_id == issue_id).all()
+
+# Issue Attachment CRUD Operations
+def create_issue_attachment(db: Session, attachment: IssueAttachmentCreate) -> IssueAttachment:
+    """Create a new issue attachment"""
+    db_attachment = IssueAttachment(
+        id=str(uuid.uuid4()),
+        issue_id=attachment.issue_id,
+        file_name=attachment.file_name,
+        file_path=attachment.file_path,
+        file_type=attachment.file_type,
+        file_size=attachment.file_size,
+        uploaded_by=attachment.uploaded_by,
+        uploaded_at=datetime.now(timezone.utc)
+    )
+    db.add(db_attachment)
+    db.commit()
+    db.refresh(db_attachment)
+    return db_attachment
+
+def get_issue_attachments(db: Session, issue_id: str) -> List[IssueAttachment]:
+    """Get all attachments for an issue"""
+    return db.query(IssueAttachment).filter(IssueAttachment.issue_id == issue_id).all()

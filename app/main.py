@@ -6,6 +6,7 @@ from app.db.session import engine
 from app.api.project import router as project_router      
 from app.api.task import router as task_router
 from app.api.resource import router as resource_router
+from app.api.qa import router as qa_router
 
 app = FastAPI(title="Project Service API")
 
@@ -21,6 +22,7 @@ app.add_middleware(
 app.include_router(project_router, prefix="/projects", tags=["projects"])
 app.include_router(task_router, prefix="/tasks", tags=["tasks"])
 app.include_router(resource_router, prefix="/resources", tags=["resources"])
+app.include_router(qa_router, prefix="/qa", tags=["qa"])
 
 def create_tables():
     Base.metadata.create_all(bind=engine)

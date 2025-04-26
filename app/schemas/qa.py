@@ -11,10 +11,10 @@ class IssueBase(BaseModel):
     priority: str = "MEDIUM"
     issue_type: str = "BUG"
     assignee_id: Optional[str] = None
+    reporter_id: str
     
 class IssueCreate(IssueBase):
     project_id: str
-    reporter_id: Optional[str] = None
     
 class IssueUpdate(BaseModel):
     title: Optional[str] = None
@@ -23,12 +23,12 @@ class IssueUpdate(BaseModel):
     priority: Optional[str] = None
     issue_type: Optional[str] = None
     assignee_id: Optional[str] = None
+    reporter_id: Optional[str] = None
     resolved_at: Optional[datetime] = None
     
 class IssueResponse(IssueBase):
     id: str
     project_id: str
-    reporter_id: str
     created_at: datetime
     updated_at: datetime
     resolved_at: Optional[datetime] = None

@@ -114,14 +114,14 @@ def get_resource_assignments_by_resource(
 def create_resource_assignment(db: Session, assignment: ResourceAssignmentCreate) -> ResourceAssignment:
     """Create a new resource assignment"""
     # Check if task exists
-    task = db.query(Task).filter(Task.id == assignment.task_id).first()
+    task = db.query(Task).filter(Task.id == str(assignment.task_id)).first()
     if not task:
-        raise ValueError("Task not found")
+        raise ValueError(f"Task not found with ID: {assignment.task_id}")
     
     # Check if resource exists
-    resource = db.query(Resource).filter(Resource.id == assignment.resource_id).first()
+    resource = db.query(Resource).filter(Resource.id == str(assignment.resource_id)).first()
     if not resource:
-        raise ValueError("Resource not found")
+        raise ValueError(f"Resource not found with ID: {assignment.resource_id}")
     
     db_assignment = ResourceAssignment(
         project_id=assignment.project_id,

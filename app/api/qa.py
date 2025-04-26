@@ -36,7 +36,7 @@ from app.crud.qa import (
     # Test metrics
     get_test_metrics
 )
-from app.schemas.issue_test import (
+from app.schemas.qa import (
     # Issue schemas
     IssueCreate,
     IssueUpdate,
@@ -61,6 +61,9 @@ from app.schemas.issue_test import (
     # Test metrics schema
     TestMetricsResponse
 )
+from app.db.models.qa import Issue
+from uuid import uuid4
+from datetime import datetime
 
 router = APIRouter()
 
@@ -120,162 +123,68 @@ def check_test_run_permissions(db: Session, test_run_id: str, user_id: str, requ
     return test_run
 
 # Issue Management Endpoints
-@router.post("/projects/{project_id}/issues", response_model=IssueResponse, status_code=status.HTTP_201_CREATED)
-async def create_new_issue(
-    project_id: str,
-    issue_data: IssueCreate,
-    current_user: dict = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
-    
-    # Force set the project_id from the path parameter
-    issue_data.project_id = project_id
-    
-    # Set current user as reporter if not specified
-    if not hasattr(issue_data, "reporter_id") or not issue_data.reporter_id:
-        issue_data.reporter_id = current_user["user_id"]
-    
-    issue = create_issue(db, issue_data)
-    return issue
-
-@router.get("/projects/{project_id}/issues", response_model=List[IssueResponse])
-async def list_project_issues(
-    project_id: str,
-    skip: int = 0,
-    limit: int = 100,
-    status: Optional[str] = None,
-    priority: Optional[str] = None,
-    assignee_id: Optional[str] = None,
-    reporter_id: Optional[str] = None,
-    issue_type: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
-    
-    issues = get_issues_by_project(
-        db, 
-        project_id, 
-        skip, 
-        limit, 
-        status, 
-        priority, 
-        assignee_id, 
-        reporter_id, 
-        issue_type
-    )
+@router.get("/{project_id}/issues", response_model=List[IssueResponse])
+def get_project_issues(project_id: str, db: Session = Depends(get_db)):
+    issues = db.query(Issue).filter(Issue.project_id == project_id).all()
     return issues
 
-@router.get("/projects/{project_id}/issues/{issue_id}", response_model=IssueResponse)
-async def get_issue_details(
-    project_id: str,
-    issue_id: str,
-    current_user: dict = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
-    
-    issue = get_issue_by_id(db, issue_id)
-    if not issue or issue.project_id != project_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Issue not found"
-        )
-    
+@router.post("/{project_id}/issues", response_model=IssueResponse)
+def create_issue(project_id: str, issue: IssueCreate, db: Session = Depends(get_db)):
+    db_issue = Issue(
+        id=str(uuid4()),
+        project_id=project_id,
+        title=issue.title,
+        description=issue.description,
+        status=issue.status,
+        priority=issue.priority,
+        issue_type=issue.issue_type,
+        assignee_id=issue.assignee_id,
+        reporter_id=issue.reporter_id
+    )
+    db.add(db_issue)
+    db.commit()
+    db.refresh(db_issue)
+    return db_issue
+
+@router.get("/{project_id}/issues/{issue_id}", response_model=IssueResponse)
+def get_issue(project_id: str, issue_id: str, db: Session = Depends(get_db)):
+    issue = db.query(Issue).filter(
+        Issue.project_id == project_id,
+        Issue.id == issue_id
+    ).first()
+    if not issue:
+        raise HTTPException(status_code=404, detail="Issue not found")
     return issue
 
-@router.put("/projects/{project_id}/issues/{issue_id}", response_model=IssueResponse)
-async def update_issue_details(
-    project_id: str,
-    issue_id: str,
-    issue_data: IssueUpdate,
-    current_user: dict = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+@router.put("/{project_id}/issues/{issue_id}", response_model=IssueResponse)
+def update_issue(project_id: str, issue_id: str, issue_update: IssueUpdate, db: Session = Depends(get_db)):
+    db_issue = db.query(Issue).filter(
+        Issue.project_id == project_id,
+        Issue.id == issue_id
+    ).first()
+    if not db_issue:
+        raise HTTPException(status_code=404, detail="Issue not found")
     
-    issue = get_issue_by_id(db, issue_id)
-    if not issue or issue.project_id != project_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Issue not found"
-        )
+    for field, value in issue_update.dict(exclude_unset=True).items():
+        setattr(db_issue, field, value)
     
-    updated_issue = update_issue(db, issue_id, issue_data)
-    return updated_issue
+    db_issue.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_issue)
+    return db_issue
 
-@router.put("/projects/{project_id}/issues/{issue_id}/status", response_model=IssueResponse)
-async def update_issue_status_endpoint(
-    project_id: str,
-    issue_id: str,
-    status_data: IssueStatusUpdate,
-    current_user: dict = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+@router.delete("/{project_id}/issues/{issue_id}")
+def delete_issue(project_id: str, issue_id: str, db: Session = Depends(get_db)):
+    db_issue = db.query(Issue).filter(
+        Issue.project_id == project_id,
+        Issue.id == issue_id
+    ).first()
+    if not db_issue:
+        raise HTTPException(status_code=404, detail="Issue not found")
     
-    issue = get_issue_by_id(db, issue_id)
-    if not issue or issue.project_id != project_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Issue not found"
-        )
-    
-    updated_issue = update_issue_status(db, issue_id, status_data.status)
-    return updated_issue
-
-@router.put("/projects/{project_id}/issues/{issue_id}/assignee", response_model=IssueResponse)
-async def update_issue_assignee_endpoint(
-    project_id: str,
-    issue_id: str,
-    assignee_data: IssueAssigneeUpdate,
-    current_user: dict = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
-    
-    issue = get_issue_by_id(db, issue_id)
-    if not issue or issue.project_id != project_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Issue not found"
-        )
-    
-    updated_issue = update_issue_assignee(db, issue_id, assignee_data.assignee_id)
-    return updated_issue
-
-@router.delete("/projects/{project_id}/issues/{issue_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_project_issue(
-    project_id: str,
-    issue_id: str,
-    current_user: dict = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
-    
-    issue = get_issue_by_id(db, issue_id)
-    if not issue or issue.project_id != project_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Issue not found"
-        )
-    
-    result = delete_issue(db, issue_id)
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete issue"
-        )
-    
-    return None
+    db.delete(db_issue)
+    db.commit()
+    return {"message": "Issue deleted successfully"}
 
 @router.get("/projects/{project_id}/issue-statistics", response_model=IssueStatisticsResponse)
 async def get_project_issue_statistics(
