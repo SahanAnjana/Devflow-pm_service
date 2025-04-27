@@ -5,92 +5,104 @@ Here's a comprehensive breakdown of the APIs needed for your Projects Service, o
 ## Project Management APIs
 
 ### Project Core Operations
-- `POST /api/projects` - Create a new project
-- `GET /api/projects` - List all projects (with pagination and filtering)
-- `GET /api/projects/{id}` - Get project details by ID
-- `PUT /api/projects/{id}` - Update project details
-- `DELETE /api/projects/{id}` - Delete a project
+- `POST /projects` - Create a new project  
+- `GET /projects` - List all projects (with pagination and filtering)  
+- `GET /projects/{project_id}` - Get project details by ID  
+- `PUT /projects/{project_id}` - Update project details  
+- `DELETE /projects/{project_id}` - Delete a project  
 
 ### Project Configuration
-- `GET /api/projects/{id}/settings` - Get project settings
-- `PUT /api/projects/{id}/settings` - Update project settings
-- `POST /api/projects/{id}/members` - Add team members to project
-- `DELETE /api/projects/{id}/members/{userId}` - Remove a team member
-- `PUT /api/projects/{id}/members/{userId}/role` - Update member role in project
+- `GET /projects/{project_id}/settings` - Get project settings  
+- `PUT /projects/{project_id}/settings` - Update project settings  
+- `POST /projects/{project_id}/members` - Add team members to project  
+- `DELETE /projects/{project_id}/members/{user_id}` - Remove a team member  
+- `PUT /projects/{project_id}/members/{user_id}/role` - Update member role  
 
 ## Task Management APIs
 
 ### Task Operations
-- `POST /api/projects/{id}/tasks` - Create a new task
-- `GET /api/projects/{id}/tasks` - List all tasks in a project
-- `GET /api/projects/{id}/tasks/{taskId}` - Get task details
-- `PUT /api/projects/{id}/tasks/{taskId}` - Update task details
-- `DELETE /api/projects/{id}/tasks/{taskId}` - Delete a task
-- `PUT /api/projects/{id}/tasks/{taskId}/status` - Update task status
-- `PUT /api/projects/{id}/tasks/{taskId}/assignee` - Assign task to team member
+- `POST /tasks/projects/{project_id}/tasks` - Create a new task  
+- `GET /tasks/projects/{project_id}/tasks` - List all tasks in a project  
+- `GET /tasks/projects/{project_id}/tasks/{task_id}` - Get task details  
+- `PUT /tasks/projects/{project_id}/tasks/{task_id}` - Update task details  
+- `DELETE /tasks/projects/{project_id}/tasks/{task_id}` - Delete a task  
+- `PUT /tasks/projects/{project_id}/tasks/{task_id}/status` - Update task status  
+- `PUT /tasks/projects/{project_id}/tasks/{task_id}/assignee` - Assign task to team member 
 
 ### Kanban Board
-- `GET /api/projects/{id}/board` - Get Kanban board configuration
-- `PUT /api/projects/{id}/board` - Update board configuration
-- `POST /api/projects/{id}/board/columns` - Add a new column
-- `PUT /api/projects/{id}/board/columns/{columnId}` - Update column
-- `PUT /api/projects/{id}/tasks/{taskId}/position` - Reorder/move task
+- `GET /tasks/projects/{project_id}/board` - Get Kanban board configuration  
+- `POST /tasks/projects/{project_id}/board/columns` - Add a new column  
+- `PUT /tasks/projects/{project_id}/board/columns/{column_id}` - Update column  
+- `PUT /tasks/projects/{project_id}/tasks/{task_id}/position` - Reorder/move task  
 
 ### Gantt Chart
-- `GET /api/projects/{id}/gantt` - Get Gantt chart data
-- `PUT /api/projects/{id}/tasks/{taskId}/schedule` - Update task schedule
-- `GET /api/projects/{id}/critical-path` - Calculate critical path
+- `GET /tasks/projects/{project_id}/gantt` - Get Gantt chart data  
+- `PUT /tasks/projects/{project_id}/tasks/{task_id}/schedule` - Update task schedule  
+- `GET /tasks/projects/{project_id}/critical-path` - Calculate critical path 
 
 ## Resource Management APIs
 
 ### Resource Allocation
-- `GET /api/resources` - List available resources
-- `GET /api/projects/{id}/resources` - Get resources allocated to project
-- `POST /api/projects/{id}/resources` - Allocate resources to project
-- `DELETE /api/projects/{id}/resources/{resourceId}` - Remove resource
-- `GET /api/resources/{resourceId}/availability` - Check resource availability
-- `GET /api/resources/utilization` - Get resource utilization metrics
+- `POST /resources/projects/{project_id}/resources` - Allocate resources to project  
+- `GET /resources/projects/{project_id}/resources` - List allocated resources  
+- `GET /resources/projects/{project_id}/resources/{resource_id}` - Get resource details  
+- `PUT /resources/projects/{project_id}/resources/{resource_id}` - Update resource  
+- `DELETE /resources/projects/{project_id}/resources/{resource_id}` - Remove resource 
+
+### Resource Assignments
+- `POST /resources/projects/{project_id}/resource-assignments` - Create assignment  
+- `GET /resources/projects/{project_id}/resource-assignments` - List assignments  
+- `PUT /resources/projects/{project_id}/resource-assignments/{assignment_id}` - Update assignment  
+- `DELETE /resources/projects/{project_id}/resource-assignments/{assignment_id}` - Delete assignment  
+
+### Utilization
+- `GET /resources/projects/{project_id}/resources/{resource_id}/utilization` - Get utilization metrics 
 
 ## Quality Assurance APIs
 
 ### Issue Tracking
-- `POST /api/projects/{id}/issues` - Create a new issue/bug
-- `GET /api/projects/{id}/issues` - List all issues
-- `GET /api/projects/{id}/issues/{issueId}` - Get issue details
-- `PUT /api/projects/{id}/issues/{issueId}` - Update issue
-- `PUT /api/projects/{id}/issues/{issueId}/status` - Update issue status
+- `POST /qa/projects/{project_id}/issues` - Create a new issue  
+- `GET /qa/projects/{project_id}/issues` - List all issues  
+- `GET /qa/projects/{project_id}/issues/{issue_id}` - Get issue details  
+- `PUT /qa/projects/{project_id}/issues/{issue_id}` - Update issue  
+- `DELETE /qa/projects/{project_id}/issues/{issue_id}` - Delete issue 
 
 ### Test Management
-- `POST /api/projects/{id}/test-cases` - Create test case
-- `GET /api/projects/{id}/test-cases` - List test cases
-- `POST /api/projects/{id}/test-runs` - Create test run
-- `GET /api/projects/{id}/test-metrics` - Get QA metrics
+- `POST /qa/projects/{project_id}/test-cases` - Create test case  
+- `GET /qa/projects/{project_id}/test-cases` - List test cases  
+- `POST /qa/projects/{project_id}/test-runs` - Create test run  
+- `GET /qa/projects/{project_id}/test-runs` - List test runs  
+- `GET /qa/projects/{project_id}/test-metrics` - Get QA metrics  
+
+### Test Run Results
+- `POST /qa/projects/{project_id}/test-runs/{test_run_id}/results` - Add test result  
+- `PUT /qa/projects/{project_id}/test-runs/{test_run_id}/results/{result_id}` - Update result  
 
 ## Collaboration APIs
 
 ### Document Management
-- `POST /api/projects/{id}/documents` - Upload document
-- `GET /api/projects/{id}/documents` - List documents
-- `GET /api/projects/{id}/documents/{docId}` - Get document
-- `DELETE /api/projects/{id}/documents/{docId}` - Delete document
+- `POST /projects/{id}/documents` - Upload document
+- `GET /projects/{id}/documents` - List documents
+- `GET /projects/{id}/documents/{docId}` - Get document
+- `DELETE /projects/{id}/documents/{docId}` - Delete document
 
 ### Comments & Discussions
-- `POST /api/projects/{id}/tasks/{taskId}/comments` - Add comment
-- `GET /api/projects/{id}/tasks/{taskId}/comments` - List comments
-- `PUT /api/projects/{id}/tasks/{taskId}/comments/{commentId}` - Edit comment
-- `DELETE /api/projects/{id}/tasks/{taskId}/comments/{commentId}` - Delete comment
+- `POST /projects/{id}/tasks/{taskId}/comments` - Add comment
+- `GET /projects/{id}/tasks/{taskId}/comments` - List comments
+- `PUT /projects/{id}/tasks/{taskId}/comments/{commentId}` - Edit comment
+- `DELETE /projects/{id}/tasks/{taskId}/comments/{commentId}` - Delete comment
 
 ## Event Publication Endpoints
 
 ### Webhooks & Events
-- `POST /api/projects/{id}/webhooks` - Register webhook
-- `GET /api/projects/{id}/activity` - Get project activity stream
-- `GET /api/projects/{id}/events` - Get project events
+- `POST /projects/{id}/webhooks` - Register webhook
+- `GET /projects/{id}/activity` - Get project activity stream
+- `GET /projects/{id}/events` - Get project events
 
 ## Reporting APIs
 
 ### Project Metrics
-- `GET /api/projects/{id}/metrics/velocity` - Get team velocity
-- `GET /api/projects/{id}/metrics/burndown` - Get burndown chart data
-- `GET /api/projects/{id}/metrics/completion` - Get completion percentage
-- `GET /api/projects/{id}/metrics/resource-utilization` - Get resource utilization
+- `GET /projects/{id}/metrics/velocity` - Get team velocity
+- `GET /projects/{id}/metrics/burndown` - Get burndown chart data
+- `GET /projects/{id}/metrics/completion` - Get completion percentage
+- `GET /projects/{id}/metrics/resource-utilization` - Get resource utilization
