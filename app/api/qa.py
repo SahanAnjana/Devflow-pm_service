@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.core.auth_client import get_current_active_user
+from app.core.auth_client import get_current_pm_user
 from app.api.project import check_project_permissions
 from app.crud.qa import (
     # Issue CRUD operations
@@ -191,11 +191,11 @@ async def get_project_issue_statistics(
     project_id: str,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     statistics = get_issue_statistics(db, project_id, start_date, end_date)
     return statistics
@@ -205,11 +205,11 @@ async def get_project_issue_statistics(
 async def create_new_test_case(
     project_id: str,
     test_case_data: TestCaseCreate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     # Force set the project_id from the path parameter
     test_case_data.project_id = project_id
@@ -229,11 +229,11 @@ async def list_project_test_cases(
     category: Optional[str] = None,
     priority: Optional[str] = None,
     status: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     test_cases = get_test_cases_by_project(db, project_id, skip, limit, category, priority, status)
     return test_cases
@@ -242,11 +242,11 @@ async def list_project_test_cases(
 async def get_test_case_details(
     project_id: str,
     test_case_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     test_case = get_test_case_by_id(db, test_case_id)
     if not test_case or test_case.project_id != project_id:
@@ -262,11 +262,11 @@ async def update_test_case_details(
     project_id: str,
     test_case_id: str,
     test_case_data: TestCaseUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     test_case = get_test_case_by_id(db, test_case_id)
     if not test_case or test_case.project_id != project_id:
@@ -285,11 +285,11 @@ async def update_test_case_details(
 async def delete_project_test_case(
     project_id: str,
     test_case_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     test_case = get_test_case_by_id(db, test_case_id)
     if not test_case or test_case.project_id != project_id:
@@ -312,11 +312,11 @@ async def delete_project_test_case(
 async def create_new_test_run(
     project_id: str,
     test_run_data: TestRunCreate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     # Force set the project_id from the path parameter
     test_run_data.project_id = project_id
@@ -335,11 +335,11 @@ async def list_project_test_runs(
     limit: int = 100,
     status: Optional[str] = None,
     executor_id: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     test_runs = get_test_runs_by_project(db, project_id, skip, limit, status, executor_id)
     return test_runs
@@ -348,11 +348,11 @@ async def list_project_test_runs(
 async def get_test_run_details(
     project_id: str,
     test_run_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     test_run = get_test_run_by_id(db, test_run_id)
     if not test_run or test_run.project_id != project_id:
@@ -368,11 +368,11 @@ async def update_test_run_details(
     project_id: str,
     test_run_id: str,
     test_run_data: TestRunUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     test_run = get_test_run_by_id(db, test_run_id)
     if not test_run or test_run.project_id != project_id:
@@ -388,11 +388,11 @@ async def update_test_run_details(
 async def delete_project_test_run(
     project_id: str,
     test_run_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     test_run = get_test_run_by_id(db, test_run_id)
     if not test_run or test_run.project_id != project_id:
@@ -416,11 +416,11 @@ async def create_test_run_result_endpoint(
     project_id: str,
     test_run_id: str,
     result_data: TestRunResultCreate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     # Check if test run exists and belongs to the project
     test_run = get_test_run_by_id(db, test_run_id)
@@ -444,11 +444,11 @@ async def update_test_run_result_endpoint(
     test_run_id: str,
     result_id: str,
     result_data: TestRunResultUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     # Check if test run exists and belongs to the project
     test_run = get_test_run_by_id(db, test_run_id)
@@ -474,11 +474,11 @@ async def get_project_test_metrics(
     project_id: str,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     metrics = get_test_metrics(db, project_id, start_date, end_date)
     return metrics

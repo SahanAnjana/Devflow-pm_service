@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.core.auth_client import get_current_active_user
+from app.core.auth_client import get_current_pm_user
 from app.api.project import check_project_permissions
 from app.crud.task import (
     get_task_by_id,
@@ -65,11 +65,11 @@ def check_task_permissions(db: Session, task_id: str, user_id: str, required_rol
 async def create_new_task(
     project_id: str,
     task_data: TaskCreate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     # Force set the project_id from the path parameter
     task_data.project_id = project_id
@@ -88,11 +88,11 @@ async def list_project_tasks(
     limit: int = 100,
     status: Optional[str] = None,
     assignee_id: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     tasks = get_tasks_by_project(db, project_id, skip, limit, status, assignee_id)
     return tasks
@@ -101,11 +101,11 @@ async def list_project_tasks(
 async def get_task_details(
     project_id: str,
     task_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     task = get_task_by_id(db, task_id)
     if not task or task.project_id != project_id:
@@ -121,11 +121,11 @@ async def update_task_details(
     project_id: str,
     task_id: str,
     task_data: TaskUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     task = get_task_by_id(db, task_id)
     if not task or task.project_id != project_id:
@@ -141,11 +141,11 @@ async def update_task_details(
 async def delete_project_task(
     project_id: str,
     task_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     task = get_task_by_id(db, task_id)
     if not task or task.project_id != project_id:
@@ -168,11 +168,11 @@ async def update_task_status_endpoint(
     project_id: str,
     task_id: str,
     status_data: TaskStatusUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     task = get_task_by_id(db, task_id)
     if not task or task.project_id != project_id:
@@ -189,11 +189,11 @@ async def update_task_assignee_endpoint(
     project_id: str,
     task_id: str,
     assignee_data: TaskAssigneeUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     task = get_task_by_id(db, task_id)
     if not task or task.project_id != project_id:
@@ -210,11 +210,11 @@ async def update_task_position_endpoint(
     project_id: str,
     task_id: str,
     position_data: TaskPositionUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     task = get_task_by_id(db, task_id)
     if not task or task.project_id != project_id:
@@ -231,11 +231,11 @@ async def update_task_schedule_endpoint(
     project_id: str,
     task_id: str,
     schedule_data: TaskScheduleUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member"])
     
     task = get_task_by_id(db, task_id)
     if not task or task.project_id != project_id:
@@ -251,11 +251,11 @@ async def update_task_schedule_endpoint(
 @router.get("/projects/{project_id}/board", response_model=BoardResponse)
 async def get_project_board(
     project_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     columns = get_board_columns(db, project_id)
     return {"columns": columns}
@@ -264,11 +264,11 @@ async def get_project_board(
 async def create_board_column_endpoint(
     project_id: str,
     column_data: BoardColumnCreate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     # Force set the project_id from the path parameter
     column_data.project_id = project_id
@@ -281,11 +281,11 @@ async def update_board_column_endpoint(
     project_id: str,
     column_id: str,
     column_data: BoardColumnUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     column = update_board_column(db, column_id, column_data)
     if not column or column.project_id != project_id:
@@ -300,11 +300,11 @@ async def update_board_column_endpoint(
 async def delete_board_column_endpoint(
     project_id: str,
     column_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     result = delete_board_column(db, column_id)
     if not result:
@@ -319,11 +319,11 @@ async def delete_board_column_endpoint(
 @router.get("/projects/{project_id}/gantt", response_model=GanttChartResponse)
 async def get_project_gantt_chart(
     project_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     tasks = get_gantt_chart_data(db, project_id)
     
@@ -355,11 +355,11 @@ async def get_project_gantt_chart(
 @router.get("/projects/{project_id}/critical-path", response_model=CriticalPathResponse)
 async def get_project_critical_path(
     project_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     path, duration = calculate_critical_path(db, project_id)
     return {"path": path, "duration": duration}

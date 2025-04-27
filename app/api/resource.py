@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.core.auth_client import get_current_active_user
+from app.core.auth_client import get_current_pm_user
 from app.api.project import check_project_permissions
 from app.crud.resource import (
     get_resource_by_id,
@@ -36,11 +36,11 @@ router = APIRouter()
 async def create_new_resource(
     project_id: str,
     resource_data: ResourceCreate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     # Force set the project_id from the path parameter
     resource_data.project_id = project_id
@@ -54,11 +54,11 @@ async def list_project_resources(
     skip: int = 0,
     limit: int = 100,
     type: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     resources = get_resources_by_project(db, project_id, skip, limit, type)
     return resources
@@ -67,11 +67,11 @@ async def list_project_resources(
 async def get_resource_details(
     project_id: str,
     resource_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     resource = get_resource_by_id(db, resource_id)
     if not resource or resource.project_id != project_id:
@@ -87,11 +87,11 @@ async def update_resource_details(
     project_id: str,
     resource_id: str,
     resource_data: ResourceUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     resource = get_resource_by_id(db, resource_id)
     if not resource or resource.project_id != project_id:
@@ -107,11 +107,11 @@ async def update_resource_details(
 async def delete_project_resource(
     project_id: str,
     resource_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     resource = get_resource_by_id(db, resource_id)
     if not resource or resource.project_id != project_id:
@@ -134,11 +134,11 @@ async def delete_project_resource(
 async def create_new_resource_assignment(
     project_id: str,
     assignment_data: ResourceAssignmentCreate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     # Force set the project_id from the path parameter
     assignment_data.project_id = project_id
@@ -153,11 +153,11 @@ async def list_project_resource_assignments(
     limit: int = 100,
     resource_id: Optional[str] = None,
     task_id: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     if resource_id:
         assignments = get_resource_assignments_by_resource(db, resource_id)
@@ -170,11 +170,11 @@ async def list_project_resource_assignments(
 async def get_resource_assignment_details(
     project_id: str,
     assignment_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     assignment = get_resource_assignment_by_id(db, assignment_id)
     if not assignment or assignment.project_id != project_id:
@@ -190,11 +190,11 @@ async def update_resource_assignment_details(
     project_id: str,
     assignment_id: str,
     assignment_data: ResourceAssignmentUpdate,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     assignment = get_resource_assignment_by_id(db, assignment_id)
     if not assignment or assignment.project_id != project_id:
@@ -210,11 +210,11 @@ async def update_resource_assignment_details(
 async def delete_project_resource_assignment(
     project_id: str,
     assignment_id: str,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin"])
     
     assignment = get_resource_assignment_by_id(db, assignment_id)
     if not assignment or assignment.project_id != project_id:
@@ -239,11 +239,11 @@ async def get_resource_utilization_data(
     resource_id: str,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: dict = Depends(get_current_active_user),
+    current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     resource = get_resource_by_id(db, resource_id)
     if not resource or resource.project_id != project_id:
