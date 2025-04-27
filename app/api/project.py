@@ -200,8 +200,8 @@ async def read_project_members(
     current_user: dict = Depends(get_current_pm_user),
     db: Session = Depends(get_db)
 ):
-    # Check project exists and user has permissions
-    check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
+    # # Check project exists and user has permissions
+    # check_project_permissions(db, project_id, current_user["user_id"], ["owner", "admin", "member", "guest"])
     
     members = get_project_members(db, project_id)
     return members
