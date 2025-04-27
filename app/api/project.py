@@ -33,29 +33,29 @@ from app.schemas.project import (
 
 router = APIRouter()
 
-# # Helper function to check project permissions
-# def check_project_permissions(db: Session, project_id: str, user_id: str, required_roles: List[str] = None):
-#     """Check if the user has appropriate permissions for a project"""
-#     if required_roles is None:
-#         required_roles = ["owner", "admin"]
+# Helper function to check project permissions
+def check_project_permissions(db: Session, project_id: str, user_id: str, required_roles: List[str] = None):
+    """Check if the user has appropriate permissions for a project"""
+    if required_roles is None:
+        required_roles = ["owner", "admin"]
     
-#     # Check if project exists
-#     project = get_project_by_id(db, project_id)
-#     if not project:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Project not found"
-#         )
+    # Check if project exists
+    project = get_project_by_id(db, project_id)
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
     
-#     # Check permissions
-#     member = get_project_member(db, project_id, user_id)
-#     if not member or member.role not in required_roles:
-#         raise HTTPException(
-#             status_code=status.HTTP_403_FORBIDDEN,
-#             detail="Not enough permissions"
-#         )
+    # Check permissions
+    member = get_project_member(db, project_id, user_id)
+    if not member or member.role not in required_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
     
-#     return project
+    return project
 
 @router.post("/", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 async def create_new_project(
